@@ -1,0 +1,36 @@
+{
+  "name": "node-rfc2397",
+  "version": "1.0.0",
+  "description": "NodeJS implementation of RFC 2397, both parsing and composing",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha"
+  },
+  "engines": {
+    "node": ">= 0.12.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NetOxygen/node-rfc2397"
+  },
+  "bugs": {
+    "url": "https://github.com/NetOxygen/node-rfc2397/issues"
+  },
+  "keywords": [
+    "rfc 2397",
+    "rfc2397",
+    "data url scheme",
+    "data uri scheme"
+  ],
+  "author": "Robin Hahling <robin.hahling@gw-computing.net>",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "iconv-lite": "^0.4.13",
+    "mocha": "^3.1.0"
+  },
+  "contributors": [
+    "Alexandre Perrin <alexandre.perrin@netoxygen.ch> (https://github.com/kAworu)",
+    "Robin Hahling <robin.hahling@gw-computing.net> (https://github.com/Rolinh)"
+  ]
+}
