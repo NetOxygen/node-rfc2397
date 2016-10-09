@@ -97,7 +97,9 @@ module.exports = {
         var mime = mediatype.shift() || 'text/plain';
 
         var parameters = mediatype.reduce(function (params, param) {
-            var [key, value] = param.split("=", 2);
+            var split = param.split("=", 2);
+            var key   = split[0];
+            var value = split[1];
             if (!key || !value)
                 return params; // be "nice" and ignore invalid properties
             params[key.toLowerCase()] = value;
