@@ -86,9 +86,9 @@ module.exports = {
         if (null === split)
             return callback(new Error("malformed dataurl"));
 
-        var [mediatype, data] = split.slice(1);
-
-        mediatype = mediatype.split(";");
+        // 0 is full match
+        var mediatype = split[1].split(";"); // capture group (1)
+        var data      = split[2];            // capture group (2)
 
         // base64 is last element (if present) and is a special case
         var base64 = mediatype[mediatype.length - 1] === "base64" && mediatype.pop();
