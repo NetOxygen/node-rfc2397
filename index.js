@@ -106,7 +106,9 @@ module.exports = {
             return params;
         }, {});
 
-        if (mime.toLowerCase().startsWith('text/') && !parameters['charset'])
+        //XXX: change "indexOf() === 0" to "startsWith" when node 0.12
+        // maintenance ends (2016-12-31)
+        if (mime.toLowerCase().indexOf('text/') === 0 && !parameters['charset'])
             parameters['charset'] = 'US-ASCII';
 
         try {
