@@ -131,7 +131,7 @@ describe("node-rfc2397", function () {
                     });
                 });
             });
-            context("when given a dataurl with mime and charset specified", function () {
+            context("when given a dataurl with type/subtype and charset specified", function () {
                 it("should parse it successfully", function (done) {
                     rfc2397.parse("data:text/plain;charset=ISO-8859-1,", function (err, obj) {
                         if (err)
@@ -201,7 +201,7 @@ describe("node-rfc2397", function () {
             });
         });
         describe("base64 encoding", function () {
-            context("when given a dataurl with base64 encoded text with mime specified", function () {
+            context("when given a dataurl with base64 encoded text with type/subtype specified", function () {
                 it("should parse it successfully", function (done) {
                     rfc2397.parse("data:text/plain;base64,SGVsbG8gV29ybGQ=", function (err, obj) {
                         if (err)
@@ -335,95 +335,135 @@ describe("node-rfc2397", function () {
                 });
             });
         });
-        context("when given an object with several parameters", function () {
-            it("should compose it successfully", function (done) {
-                var obj = {
-                    mime: "text/plain",
-                    parameters: {
-                        charset: "cp866",
-                        foo: "bar",
-                        answer: "42",
-                    },
-                    data: new Buffer([0xe1, 0xab, 0xae, 0xa2, 0xae]),
-                };
-                rfc2397.compose(obj, function (err, dataurl) {
-                    if (err)
-                        return done(err);
-                    expect(dataurl).to.equal("data:text/plain;charset=cp866;foo=bar;answer=42,%e1%ab%ae%a2%ae");
-                    return done();
+        describe("type/subtype and charset", function () {
+            context("when given an object with type/subtype specified", function () {
+                it("should compose it successfully", function (done) {
+                    var obj = {
+                        mime: "text/plain",
+                        data: new Buffer([])
+                    };
+                    rfc2397.compose(obj, function (err, dataurl) {
+                        if (err)
+                            return done(err);
+                        expect(dataurl).to.equal("data:text/plain,");
+                        return done();
+                    });
+                });
+            });
+            context("when given an object with both type/subtype and charset specified", function () {
+                it("should compose it successfully", function (done) {
+                    var obj = {
+                        mime: "text/plain",
+                        parameters: {
+                            charset: "ISO-8859-1",
+                        },
+                        data: new Buffer([])
+                    };
+                    rfc2397.compose(obj, function (err, dataurl) {
+                        if (err)
+                            return done(err);
+                        expect(dataurl).to.equal("data:text/plain;charset=ISO-8859-1,");
+                        return done();
+                    });
                 });
             });
         });
-        context("when given an object with text to encode to base64", function () {
-            it("should compose it successfully", function (done) {
-                var obj = {
-                    data: new Buffer("A brief note"),
-                };
-                rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
-                    if (err)
-                        return done(err);
-                    expect(dataurl).to.equal("data:;base64,QSBicmllZiBub3Rl");
-                    return done();
+        describe("parameters", function () {
+            context("when given an object with several parameters", function () {
+                it("should compose it successfully", function (done) {
+                    var obj = {
+                        mime: "text/plain",
+                        parameters: {
+                            charset: "cp866",
+                            foo: "bar",
+                            answer: "42",
+                        },
+                        data: new Buffer([0xe1, 0xab, 0xae, 0xa2, 0xae]),
+                    };
+                    rfc2397.compose(obj, function (err, dataurl) {
+                        if (err)
+                            return done(err);
+                        // FIXME: we could fail this test because the order is
+                        // not guaranteed here.
+                        expect(dataurl).to.equal("data:text/plain;charset=cp866;foo=bar;answer=42,%e1%ab%ae%a2%ae");
+                        return done();
+                    });
+                });
+            });
+            context("when given an URL encoded key parameter", function () {
+                it("should compose it successfully", function (done) {
+                    var obj = {
+                        parameters: {
+                            "A brief note": "hello",
+                        },
+                        data: new Buffer([])
+                    };
+                    rfc2397.compose(obj, function (err, dataurl) {
+                        if (err)
+                            return done(err);
+                        expect(dataurl).to.equal("data:;A%20brief%20note=hello,");
+                        return done();
+                    });
+                });
+            });
+            context("when given an URL encoded value parameter", function () {
+                it("should compose it successfully", function (done) {
+                    var obj = {
+                        parameters: {
+                            hello: "A brief note",
+                        },
+                        data: new Buffer([])
+                    };
+                    rfc2397.compose(obj, function (err, dataurl) {
+                        if (err)
+                            return done(err);
+                        expect(dataurl).to.equal("data:;hello=A%20brief%20note,");
+                        return done();
+                    });
                 });
             });
         });
-        context("when given an object with text to encode to base64 and mime is specified", function () {
-            it("should compose it successfully", function (done) {
-                var obj = {
-                    mime: "text/plain",
-                    data: new Buffer("Hello World"),
-                };
-                rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
-                    if (err)
-                        return done(err);
-                    expect(dataurl).to.equal("data:text/plain;base64,SGVsbG8gV29ybGQ=");
-                    return done();
+        describe("base64 encoding", function () {
+            context("when given an object with text to encode to base64", function () {
+                it("should compose it successfully", function (done) {
+                    var obj = {
+                        data: new Buffer("A brief note"),
+                    };
+                    rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
+                        if (err)
+                            return done(err);
+                        expect(dataurl).to.equal("data:;base64,QSBicmllZiBub3Rl");
+                        return done();
+                    });
+                });
+            });
+            context("when given an object with a base64 encoded image", function () {
+                it("should compose it successfully", function (done) {
+                    var data = "R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+                    var obj = {
+                        mime: "image/gif",
+                        data: new Buffer(data, "base64"),
+                    };
+                    rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
+                        if (err)
+                            return done(err);
+                        expect(dataurl).to.equal("data:image/gif;base64," + data);
+                        return done();
+                    });
                 });
             });
         });
-        context("when given an object with text to encode to base64 and mime and charset are specified", function () {
-            it("should compose it successfully", function (done) {
-                var data = "QXMtdHUgZOlq4CBmYWl0IGNlcyBy6nZlcyBO6W8sIHF1aSBz" +
-                    "ZW1ibGVudCBwbHVzIHZyYWlzIHF1ZSBsYSBy6WFsaXTpID8K";
-                var obj = {
-                    mime: "text/plain",
-                    parameters: {
-                        charset: "ISO-8859-1",
-                    },
-                    data: new Buffer(data, "base64"),
-                };
-                rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
-                    if (err)
-                        return done(err);
-                    expect(dataurl).to.equal("data:text/plain;charset=ISO-8859-1;base64," + data);
-                    return done();
-                });
-            });
-        });
-        context("when given an object with a base64 encoded image", function () {
-            it("should compose it successfully", function (done) {
-                var data = "R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
-                var obj = {
-                    mime: "image/gif",
-                    data: new Buffer(data, "base64"),
-                };
-                rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
-                    if (err)
-                        return done(err);
-                    expect(dataurl).to.equal("data:image/gif;base64," + data);
-                    return done();
-                });
-            });
-        });
-        context("when the given data is not a Buffer", function () {
-            it("should callback an 'unexpected type for obj.data' error", function (done) {
-                var obj = {
-                    data: new Date(),
-                };
-                rfc2397.compose(obj, function (err, dataurl) {
-                    expect(err).to.be.an.instanceof(TypeError);
-                    expect(err.message).to.equal("unexpected type for obj.data (did you provide a Buffer?)");
-                    return done();
+        context("when data is invalid", function () {
+            context("when the given data is not a Buffer", function () {
+                it("should callback an 'unexpected type for obj.data' error", function (done) {
+                    var obj = {
+                        data: new Date(),
+                    };
+                    rfc2397.compose(obj, function (err, dataurl) {
+                        expect(err).to.be.an.instanceof(TypeError);
+                        expect(err.message).to.equal("expected obj to be a Buffer");
+                        return done();
+                    });
                 });
             });
         });

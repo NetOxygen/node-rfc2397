@@ -4,7 +4,7 @@ var re = require("./rfc3986-regexp");
 
 
 /*
- * Decode "%xx hex" encoded strings into a Buffer.
+ * validate and decode "%xx hex" encoded strings into a Buffer.
  */
 function pct_decode(urlencoded) {
     var correctly_encoded = new RegExp(
@@ -33,7 +33,9 @@ function pct_decode(urlencoded) {
  * Encode argument into a percent encoded string.
  */
 function pct_encode(arg) {
-    var encoded = new Uint8Array(arg).reduce(function (str, byte) {
+    // FIXME: use Buffer.from() for NodeJS 6+
+    // FIXME: use Uint8Array.from() for NodeJS 6+
+    var encoded = new Uint8Array(new Buffer(arg)).reduce(function (str, byte) {
         var char = String.fromCharCode(byte);
         if (char.match(re.unreserved)) {
             return str + char;
@@ -60,6 +62,14 @@ function base64_decode(base64encoded) {
 
     // FIXME: use Buffer.from() for NodeJS 6+
     return new Buffer(base64encoded, 'base64');
+}
+
+
+/*
+ * Encode argument into a base64 encoded string.
+ */
+function base64_encode(buff) {
+    return buff.toString("base64");
 }
 
 
@@ -136,24 +146,26 @@ module.exports = {
             options = {};
         }
 
-        var mime = obj.mime || "";
-        var parameters = obj.parameters || {};
-        var parametersString = Object.keys(parameters).reduce(function (params, key) {
-            return params + ";" + key + "=" + parameters[key]; //FIXME: pct_encode() key and value
-        }, "");
-        var mediatype = mime + parametersString;
-
         if (!Buffer.isBuffer(obj.data))
-            return callback(new TypeError("unexpected type for obj.data (did you provide a Buffer?)"));
+            return callback(new TypeError("expected obj to be a Buffer"));
 
-        var data = "";
+        var mediatype = [];
+        mediatype.push(obj.mime || "");
+        var parameters = obj.parameters || {};
+        Object.keys(parameters).forEach(function (key) {
+            var attribute = pct_encode(key);
+            var value     = pct_encode(parameters[key]);
+            mediatype.push(attribute + "=" + value);
+        });
+
+        var base64 = "";
+        var encode = pct_encode;
         if (true === options.base64) {
-            mediatype += ";base64";
-            data = obj.data.toString("base64");
-        } else {
-            data = pct_encode(obj.data);
+            base64 = ";base64";
+            encode = base64_encode;
         }
+        var data = encode(obj.data);
 
-        return callback(null, "data:" + mediatype + "," + data);
+        return callback(null, "data:" + mediatype.join(";") + base64 + "," + data);
     },
 };
