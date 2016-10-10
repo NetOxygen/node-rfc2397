@@ -4,10 +4,13 @@
 /* global context:true */
 /* global it:true */
 
+var util = require("util");
+
 var chai   = require("chai");
 var expect = chai.expect;
 
 var rfc2397 = require('../');
+
 
 describe("node-rfc2397", function () {
     describe("parse", function () {
@@ -114,7 +117,7 @@ describe("node-rfc2397", function () {
             });
         });
         context("when given a dataurl with charset but no type/subtype", function () {
-            it("should parse it successfully", function (done) {
+            it("should parse it successfully and default to text/plain", function (done) {
                 rfc2397.parse("data:;charset=utf-8;base64,SGVsbG8gV29ybGQ=", function (err, obj) {
                     if (err)
                         return done(err);
@@ -148,7 +151,7 @@ describe("node-rfc2397", function () {
             });
         });
         context("when given a minimal dataurl with base64 encoded text", function () {
-            it("should parse it successfully", function (done) {
+            it("should parse it successfully and default to text/plain;charset=US-ASCII", function (done) {
                 rfc2397.parse("data:;base64,QSBicmllZiBub3Rl", function (err, obj) {
                     if (err)
                         return done(err);
@@ -178,21 +181,32 @@ describe("node-rfc2397", function () {
                 });
             });
         });
-        context("when given dataurl is invalid", function () {
-            it("should callback a 'malformed dataurl' error", function (done) {
-                rfc2397.parse("I am NOT a dataurl", function (err, dataurl) {
-                    expect(err).to.be.an.instanceof(Error);
-                    expect(err.message).to.equal("malformed dataurl");
-                    return done();
+        context("when given an invalid dataurl", function () {
+            context("when the dataurl is malformed", function () {
+                it("should yield a 'malformed dataurl' error", function (done) {
+                    rfc2397.parse("I am NOT a dataurl", function (err, dataurl) {
+                        expect(err).to.be.an.instanceof(Error);
+                        expect(err.message).to.equal("malformed dataurl");
+                        return done();
+                    });
                 });
             });
-        });
-        context("when given a dataurl with bad data", function () {
-            it("should callback a 'malformed data' error", function (done) {
-                rfc2397.parse("data:,%fgabc", function (err, dataurl) {
-                    expect(err).to.be.an.instanceof(Error);
-                    expect(err.message).to.equal("malformed data");
-                    return done();
+            context("when the data is badly URL encoded", function () {
+                it("should yield a 'malformed data' error", function (done) {
+                    rfc2397.parse("data:,%fgabc", function (err, dataurl) {
+                        expect(err).to.be.an.instanceof(Error);
+                        expect(err.message).to.equal("malformed data");
+                        return done();
+                    });
+                });
+            });
+            context("when the data is badly base64 encoded", function () {
+                it("should yield a 'malformed data' error", function (done) {
+                    rfc2397.parse("data:;base64,bad-base64-data", function (err, dataurl) {
+                        expect(err).to.be.an.instanceof(Error);
+                        expect(err.message).to.equal("malformed data");
+                        return done();
+                    });
                 });
             });
         });

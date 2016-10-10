@@ -15,7 +15,6 @@ function pct_decode(urlencoded) {
     if (!urlencoded.match(correctly_encoded))
         throw new Error("malformed data");
 
-
     var buffers = urlencoded.split(splitter).map(function (part) {
         if (part.match(re.escaped)) {
             // FIXME: use Buffer.from() for NodeJS 6+
@@ -27,7 +26,7 @@ function pct_decode(urlencoded) {
     });
 
     return Buffer.concat(buffers);
-};
+}
 
 /*
  * Encode argument into a percent encoded string.
@@ -43,8 +42,21 @@ function pct_encode(arg) {
     }, "");
 
     return encoded;
-};
+}
 
+
+/*
+ * validate and decode a base64 encoded string into a buffer.
+ */
+function base64_decode(base64encoded) {
+    var correctly_encoded = new RegExp(
+        "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+    );
+    if (!base64encoded.match(correctly_encoded))
+        throw new Error("malformed data");
+    // FIXME: use Buffer.from() for NodeJS 6+
+    return new Buffer(base64encoded, 'base64');
+}
 
 module.exports = {
     /*
@@ -60,20 +72,21 @@ module.exports = {
         // capture groups:
         //   (1) [ mediatype ] [ ";base64" ]
         //   (2) data
-        var split = dataurl.match(/^data:(.*?),(.*)$/);
-        if (!split)
+        var groups = dataurl.match(/^data:(.*?),(.*)$/);
+        if (!groups)
             return callback(new Error("malformed dataurl"));
 
         // index 0 is the full match
-        var mediatype = split[1].split(";"); // capture group (1)
-        var data      = split[2];            // capture group (2)
+        var mediatype = groups[1].split(";"); // capture group (1)
+        var data      = groups[2];            // capture group (2)
 
-        // base64 is last element (if present) and is a special case
+        // base64 is a special case and the last element (if present).
         var base64 = mediatype[mediatype.length - 1] === "base64" && mediatype.pop();
-        var mime   = mediatype.shift();
-
+        // mime (i.e. type/subtype) is the first element.
+        var mime = mediatype.shift();
+        // parameters follow
         var parameters = mediatype.reduce(function (params, param) {
-            var split = param.split("=", 2);
+            var split = param.split("=");
             if (split.length != 2)
                 return callback(new Error("invalid dataurl parameter")); // FIXME: to test
             params[split[0]] = split[1]; // FIXME: pct_decode() both key and value try/catch
@@ -95,7 +108,7 @@ module.exports = {
             return callback(null, {
                 mime: mime,
                 parameters: parameters,
-                data: base64 ? new Buffer(data, 'base64') : pct_decode(data),
+                data: (base64 ? base64_decode : pct_decode)(data),
             });
         } catch (err) {
             return callback(err);
