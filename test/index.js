@@ -14,6 +14,20 @@ var rfc2397 = require('../');
 
 describe("node-rfc2397", function () {
     describe("parse", function () {
+        context("when given a dataurl without data", function () {
+            it("should parse it successfully", function (done) {
+                rfc2397.parse("data:text/plain,", function (err, obj) {
+                    if (err)
+                        return done(err);
+                    expect(obj).to.deep.equal({
+                        mime: "text/plain",
+                        parameters: {},
+                        data: new Buffer([])
+                    });
+                    return done();
+                });
+            });
+        });
         context("when given RFC 2397 examples", function () {
             it("should parse the 'brief note' example successfully", function (done) {
                 rfc2397.parse("data:,A%20brief%20note", function (err, obj) {
@@ -84,100 +98,136 @@ describe("node-rfc2397", function () {
                 });
             });
         });
-        context("when given a dataurl with several parameters", function () {
-            it("should parse it successfully", function (done) {
-                rfc2397.parse("data:text/plain;charset=cp866;foo=bar;answer=42,%e1%AB%ae%A2%ae", function (err, obj) {
-                    if (err)
-                        return done(err);
-                    expect(obj).to.deep.equal({
-                        mime: "text/plain",
-                        parameters: {
-                            charset: "cp866",
-                            foo: "bar",
-                            answer: "42",
-                        },
-                        data: new Buffer([0xe1, 0xab, 0xae, 0xa2, 0xae]),
+        describe("type/subtype and charset", function () {
+            context("when given a minimal dataurl without charset and without type/subtype", function () {
+                it("should parse it successfully and default to text/plain;charset=US-ASCII", function (done) {
+                    rfc2397.parse("data:,", function (err, obj) {
+                        if (err)
+                            return done(err);
+                        expect(obj).to.deep.equal({
+                            mime: "text/plain",
+                            parameters: {
+                                charset: "US-ASCII",
+                            },
+                            data: new Buffer([])
+                        });
+                        return done();
                     });
-                    return done();
+                });
+            });
+            context("when given a dataurl with charset but no type/subtype", function () {
+                it("should parse it successfully and default to text/plain", function (done) {
+                    rfc2397.parse("data:;charset=utf-8,", function (err, obj) {
+                        if (err)
+                            return done(err);
+                        expect(obj).to.deep.equal({
+                            mime: "text/plain",
+                            parameters: {
+                                charset: "utf-8",
+                            },
+                            data: new Buffer([])
+                        });
+                        return done();
+                    });
+                });
+            });
+            context("when given a dataurl with mime and charset specified", function () {
+                it("should parse it successfully", function (done) {
+                    rfc2397.parse("data:text/plain;charset=ISO-8859-1,", function (err, obj) {
+                        if (err)
+                            return done(err);
+                        expect(obj).to.deep.equal({
+                            mime: "text/plain",
+                            parameters: {
+                                charset: "ISO-8859-1",
+                            },
+                            data: new Buffer([])
+                        });
+                        return done();
+                    });
                 });
             });
         });
-        context("when given a dataurl with base64 encoded text with mime specified", function () {
-            it("should parse it successfully", function (done) {
-                rfc2397.parse("data:text/plain;base64,SGVsbG8gV29ybGQ=", function (err, obj) {
-                    if (err)
-                        return done(err);
-                    expect(obj).to.deep.equal({
-                        mime: "text/plain",
-                        parameters: {},
-                        data: new Buffer("Hello World"),
+        describe("parameters", function () {
+            context("when given a dataurl with several parameters", function () {
+                it("should parse it successfully", function (done) {
+                    rfc2397.parse("data:text/plain;charset=cp866;foo=bar;answer=42,", function (err, obj) {
+                        if (err)
+                            return done(err);
+                        expect(obj).to.deep.equal({
+                            mime: "text/plain",
+                            parameters: {
+                                charset: "cp866",
+                                foo: "bar",
+                                answer: "42",
+                            },
+                            data: new Buffer([])
+                        });
+                        return done();
                     });
-                    return done();
+                });
+            });
+            context("when given an URL encoded key parameter", function () {
+                it("should parse it successfully", function (done) {
+                    rfc2397.parse("data:text/plain;A%20brief%20note=hello,", function (err, obj) {
+                        if (err)
+                            return done(err);
+                        expect(obj).to.deep.equal({
+                            mime: "text/plain",
+                            parameters: {
+                                "A brief note": "hello"
+                            },
+                            data: new Buffer([])
+                        });
+                        return done();
+                    });
+                });
+            });
+            context("when given an URL encoded value parameter", function () {
+                it("should parse it successfully", function (done) {
+                    rfc2397.parse("data:text/plain;hello=A%20brief%20note,", function (err, obj) {
+                        if (err)
+                            return done(err);
+                        expect(obj).to.deep.equal({
+                            mime: "text/plain",
+                            parameters: {
+                                hello: "A brief note",
+                            },
+                            data: new Buffer([])
+                        });
+                        return done();
+                    });
                 });
             });
         });
-        context("when given a dataurl with charset but no type/subtype", function () {
-            it("should parse it successfully and default to text/plain", function (done) {
-                rfc2397.parse("data:;charset=utf-8;base64,SGVsbG8gV29ybGQ=", function (err, obj) {
-                    if (err)
-                        return done(err);
-                    expect(obj).to.deep.equal({
-                        mime: "text/plain",
-                        parameters: {
-                            charset: "utf-8",
-                        },
-                        data: new Buffer("Hello World"),
+        describe("base64 encoding", function () {
+            context("when given a dataurl with base64 encoded text with mime specified", function () {
+                it("should parse it successfully", function (done) {
+                    rfc2397.parse("data:text/plain;base64,SGVsbG8gV29ybGQ=", function (err, obj) {
+                        if (err)
+                            return done(err);
+                        expect(obj).to.deep.equal({
+                            mime: "text/plain",
+                            parameters: {},
+                            data: new Buffer("Hello World"),
+                        });
+                        return done();
                     });
-                    return done();
                 });
             });
-        });
-        context("when given a dataurl with base64 encoded text with mime and charset specified", function () {
-            it("should parse it successfully", function (done) {
-                var data = "QXMtdHUgZOlq4CBmYWl0IGNlcyBy6nZlcyBO6W8sIHF1aSBz" +
-                    "ZW1ibGVudCBwbHVzIHZyYWlzIHF1ZSBsYSBy6WFsaXTpID8K";
-                rfc2397.parse("data:text/plain;charset=ISO-8859-1;base64," + data, function (err, obj) {
-                    if (err)
-                        return done(err);
-                    expect(obj).to.deep.equal({
-                        mime: "text/plain",
-                        parameters: {
-                            charset: "ISO-8859-1",
-                        },
-                        data: new Buffer(data, "base64"),
+            context("when given a minimal dataurl with a base64 encoded image", function () {
+                it("should parse it successfully", function (done) {
+                    var data = "R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+                    rfc2397.parse("data:image/gif;base64," + data, function (err, obj) {
+                        if (err)
+                            return done(err);
+                        expect(obj).to.deep.equal({
+                            mime: "image/gif",
+                            parameters: {},
+                            data: new Buffer(data, "base64"),
+                        });
+                        return done();
                     });
-                    return done();
-                });
-            });
-        });
-        context("when given a minimal dataurl with base64 encoded text", function () {
-            it("should parse it successfully and default to text/plain;charset=US-ASCII", function (done) {
-                rfc2397.parse("data:;base64,QSBicmllZiBub3Rl", function (err, obj) {
-                    if (err)
-                        return done(err);
-                    expect(obj).to.deep.equal({
-                        mime: "text/plain",
-                        parameters: {
-                            charset: "US-ASCII",
-                        },
-                        data: new Buffer("A brief note"),
-                    });
-                    return done();
-                });
-            });
-        });
-        context("when given a minimal dataurl with a base64 encoded image", function () {
-            it("should parse it successfully", function (done) {
-                var data = "R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
-                rfc2397.parse("data:image/gif;base64," + data, function (err, obj) {
-                    if (err)
-                        return done(err);
-                    expect(obj).to.deep.equal({
-                        mime: "image/gif",
-                        parameters: {},
-                        data: new Buffer(data, "base64"),
-                    });
-                    return done();
                 });
             });
         });

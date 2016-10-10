@@ -96,7 +96,9 @@ module.exports = {
                 var splitted = parameter.split("=");
                 if (splitted.length !== 2)
                     throw new Error("invalid dataurl parameter");
-                parameters[splitted[0]] = splitted[1]; // FIXME: pct_decode() both key and value try/catch
+                var key   = pct_decode(splitted[0]).toString();
+                var value = pct_decode(splitted[1]).toString();
+                parameters[key] = value;
                 return parameters;
             }, {});
         } catch (err) {
