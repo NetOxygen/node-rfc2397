@@ -50,7 +50,7 @@ rfc2397.parse(dataurl, function (err, obj) {
 Compose a [RFC 2397](https://tools.ietf.org/html/rfc2397) compliant string from
 the given object `obj`. Pass `{encoding: "base64"}` as `options` if the data
 needs to be base64 encoded. `callback` is a `function (err, dataurl)` that is
-call as `callback(err)` if an error arise and `callback(null, dataurl)` on
+called as `callback(err)` if an error arise and `callback(null, dataurl)` on
 success.
 
 Example:
