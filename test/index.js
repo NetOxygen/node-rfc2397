@@ -191,6 +191,15 @@ describe("node-rfc2397", function () {
                     });
                 });
             });
+            context("when the dataurl has an invalid parameter", function () {
+                it("should yield a 'invalid dataurl parameter' error", function (done) {
+                    rfc2397.parse("data:;this=is=invalid,A%20brief%20note", function (err, dataurl) {
+                        expect(err).to.be.an.instanceof(Error);
+                        expect(err.message).to.equal("invalid dataurl parameter");
+                        return done();
+                    });
+                });
+            });
             context("when the data is badly URL encoded", function () {
                 it("should yield a 'malformed data' error", function (done) {
                     rfc2397.parse("data:,%fgabc", function (err, dataurl) {

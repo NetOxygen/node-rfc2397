@@ -28,6 +28,7 @@ function pct_decode(urlencoded) {
     return Buffer.concat(buffers);
 }
 
+
 /*
  * Encode argument into a percent encoded string.
  */
@@ -49,14 +50,18 @@ function pct_encode(arg) {
  * validate and decode a base64 encoded string into a buffer.
  */
 function base64_decode(base64encoded) {
+    // see https://stackoverflow.com/questions/475074/regex-to-parse-or-validate-base64-data/475217#475217
     var correctly_encoded = new RegExp(
         "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
     );
+
     if (!base64encoded.match(correctly_encoded))
         throw new Error("malformed data");
+
     // FIXME: use Buffer.from() for NodeJS 6+
     return new Buffer(base64encoded, 'base64');
 }
+
 
 module.exports = {
     /*
@@ -85,19 +90,24 @@ module.exports = {
         // mime (i.e. type/subtype) is the first element.
         var mime = mediatype.shift();
         // parameters follow
-        var parameters = mediatype.reduce(function (params, param) {
-            var split = param.split("=");
-            if (split.length != 2)
-                return callback(new Error("invalid dataurl parameter")); // FIXME: to test
-            params[split[0]] = split[1]; // FIXME: pct_decode() both key and value try/catch
-            return params;
-        }, {});
+        var parameters;
+        try {
+            parameters = mediatype.reduce(function (parameters, parameter) {
+                var splitted = parameter.split("=");
+                if (splitted.length !== 2)
+                    throw new Error("invalid dataurl parameter");
+                parameters[splitted[0]] = splitted[1]; // FIXME: pct_decode() both key and value try/catch
+                return parameters;
+            }, {});
+        } catch (err) {
+            return callback(err);
+        }
 
         if (mime.length === 0 && Object.keys(parameters).length === 0) {
             // If <mediatype> is omitted, it defaults to
             // text/plain;charset=US-ASCII.
             mime = 'text/plain';
-            parameters["charset"] = "US-ASCII";
+            parameters.charset = "US-ASCII";
         } else if (mime.length === 0 && "charset" in parameters) {
             // As a shorthand, "text/plain" can be omitted but the charset
             // parameter supplied.
@@ -105,20 +115,23 @@ module.exports = {
         }
 
         try {
-            return callback(null, {
-                mime: mime,
-                parameters: parameters,
-                data: (base64 ? base64_decode : pct_decode)(data),
-            });
+            data = (base64 ? base64_decode : pct_decode)(data);
         } catch (err) {
             return callback(err);
         }
+
+        return callback(null, {
+            mime: mime,
+            parameters: parameters,
+            data: data
+        });
     },
+
 
     compose: function (obj, options, callback) {
         if ('undefined' === typeof callback) {
             callback = options;
-            options = {}
+            options = {};
         }
 
         var mime = obj.mime || "";
