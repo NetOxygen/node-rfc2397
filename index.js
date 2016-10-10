@@ -1,35 +1,23 @@
 "use strict";
 
+var re = require("./rfc3986-regexp");
+
 
 /*
  * Decode "%xx hex" encoded strings into a Buffer.
  */
 function pct_decode(urlencoded) {
-    /*
-     * see https://tools.ietf.org/html/rfc3986#section-2.3
-     * unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
-     */
-    var unreserved = /[A-Za-z0-9\-\._~]/;
-
-    /*
-     * see https://tools.ietf.org/html/rfc3986#section-2.1
-     *  pct-encoded = "%" HEXDIG HEXDIG
-     */
-    var pct_encoded = /%[A-Fa-f0-9]{2}/;
-
     var correctly_encoded = new RegExp(
-        "^(?:" + unreserved.source + "|" + pct_encoded.source + ")*$"
+        "^(?:" + re.unreserved.source + "|" + re.escaped.source + ")*$"
     );
+    var splitter = new RegExp("(" + re.escaped.source + ")");
 
     if (!urlencoded.match(correctly_encoded))
         throw new Error("malformed data");
 
-    var splitter = new RegExp(
-        "(" + pct_encoded.source + ")"
-    );
 
     var buffers = urlencoded.split(splitter).map(function (part) {
-        if (part.match(pct_encoded)) {
+        if (part.match(re.escaped)) {
             // FIXME: use Buffer.from() for NodeJS 6+
             return new Buffer(/* remove leading `%' */part.slice(1), "hex");
         } else {
@@ -42,25 +30,19 @@ function pct_decode(urlencoded) {
 };
 
 /*
- * Encode uint8buff into a percent encoded string.
+ * Encode argument into a percent encoded string.
  */
-function pct_encode(uint8buff) {
-    /*
-     * see https://tools.ietf.org/html/rfc3986#section-2.3
-     * unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
-     */
-    var unreserved = /[A-Za-z0-9\-\._~]/;
-
-    var pct_encoded = uint8buff.reduce(function (str, byte) {
+function pct_encode(arg) {
+    var encoded = new Uint8Array(arg).reduce(function (str, byte) {
         var char = String.fromCharCode(byte);
-        if (char.match(unreserved)) {
+        if (char.match(re.unreserved)) {
             return str + char;
         } else {
             return str + "%" + byte.toString(16);
         }
     }, "");
 
-    return pct_encoded;
+    return encoded;
 };
 
 
@@ -142,7 +124,7 @@ module.exports = {
             data = obj.data.toString("base64");
         } else {
             try {
-                data = pct_encode(new Uint8Array(obj.data));
+                data = pct_encode(obj.data);
             } catch (err) {
                 return callback(err);
             }
