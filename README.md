@@ -12,7 +12,7 @@ NodeJS implementation of [RFC 2397](https://tools.ietf.org/html/rfc2397) (The
 Parse a [RFC 2397](https://tools.ietf.org/html/rfc2397) compliant string.
 `callback` is a `function (err, infos)` that is called as `callback(err)` if
 an error arise and `callback(null, infos)` on
-success. The `infos` object yielded `callback` has the following form:
+success. The `infos` object yielded to `callback` has the following form:
 
 ```javascript
 {
