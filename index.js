@@ -32,9 +32,11 @@ function pct_decode(urlencoded) {
 
     var buffers = urlencoded.split(splitter).map(function (part) {
         if (part.match(pct_encoded)) {
-            return Buffer.from(/* remove leading `%' */  part.slice(1), "hex");
+            // FIXME: use Buffer.from() for NodeJS 6+
+            return new Buffer(/* remove leading `%' */part.slice(1), "hex");
         } else {
-            return Buffer.from(part, "ascii");
+            // FIXME: use Buffer.from() for NodeJS 6+
+            return new Buffer(part, "ascii");
         }
     });
 
@@ -106,14 +108,14 @@ module.exports = {
             return params;
         }, {});
 
-        if (mime.toLowerCase().startsWith('text/') && !parameters['charset'])
+        if (mime.toLowerCase().match(/^text\//) && !parameters['charset'])
             parameters['charset'] = 'US-ASCII';
 
         try {
             return callback(null, {
                 mime: mime,
                 parameters: parameters,
-                data: base64 ? Buffer.from(data, 'base64') : pct_decode(data),
+                data: base64 ? new Buffer(data, 'base64') : pct_decode(data),
             });
         } catch (err) {
             return callback(err);
