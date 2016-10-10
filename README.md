@@ -27,7 +27,7 @@ the error (if any) and the resulting object of the following form:
 Example:
 
 ```javascript
-var rfc2397 = require("rfc-2397");
+var rfc2397 = require("node-rfc2397");
 
 var dataurl = "data:text/plain;charset=cp866;foo=bar;answer=42,%e1%ab%ae%a2%ae";
 rfc2397.parse(dataurl, function (err, obj) {
@@ -54,7 +54,7 @@ resulting string.
 Example: 
 
 ```javascript
-var rfc2397 = require("rfc-2397");
+var rfc2397 = require("node-rfc2397");
 
 var obj = {
     mime: 'text/plain',
