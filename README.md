@@ -2,8 +2,8 @@
 
 # node-rfc2397
 
-NodeJS implementation of [RFC 2397](https://tools.ietf.org/html/rfc2397) (also
-know as the "data url scheme" or "data uri"), both parsing and composing.
+NodeJS implementation of [RFC 2397](https://tools.ietf.org/html/rfc2397) (The
+"data" URL scheme), both parsing and composing.
 
 ## Usage
 
