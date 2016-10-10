@@ -1,7 +1,5 @@
 "use strict";
 
-var iconv = require("iconv-lite");
-
 
 /*
  * Decode "%xx hex" encoded strings into a Buffer.
@@ -44,24 +42,21 @@ function pct_decode(urlencoded) {
 };
 
 /*
- * Encode str into a percent encoded string.
+ * Encode uint8buff into a percent encoded string.
  */
-function pct_encode(str, charset) {
-    if (!iconv.encodingExists(charset))
-        throw new Error("unsupported charset (" + charset + ")");
+function pct_encode(uint8buff) {
     /*
      * see https://tools.ietf.org/html/rfc3986#section-2.3
      * unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
      */
     var unreserved = /[A-Za-z0-9\-\._~]/;
 
-    var pct_encoded = str.split("").reduce(function (str, char) {
+    var pct_encoded = uint8buff.reduce(function (str, byte) {
+        var char = String.fromCharCode(byte);
         if (char.match(unreserved)) {
             return str + char;
         } else {
-            return str + iconv.encode(char, charset).toString("hex").match(/[A-Fa-f0-9]{2}/).map(function (hex) {
-                return "%" + hex;
-            });
+            return str + "%" + byte.toString(16);
         }
     }, "");
 
@@ -83,33 +78,36 @@ module.exports = {
         // capture groups:
         //   (1) [ mediatype ] [ ";base64" ]
         //   (2) data
-        var dataurl_splitter = /^(?:data:){1}([^,]*)(?:,)(.+)$/;
-        var split = dataurl.match(dataurl_splitter);
-        if (null === split)
+        var split = dataurl.match(/^data:(.*?),(.*)$/);
+        if (!split)
             return callback(new Error("malformed dataurl"));
 
-        // 0 is full match
+        // index 0 is the full match
         var mediatype = split[1].split(";"); // capture group (1)
         var data      = split[2];            // capture group (2)
 
         // base64 is last element (if present) and is a special case
         var base64 = mediatype[mediatype.length - 1] === "base64" && mediatype.pop();
-
-        // first element of mediatype is the MIME (if present)
-        var mime = mediatype.shift() || 'text/plain';
+        var mime   = mediatype.shift();
 
         var parameters = mediatype.reduce(function (params, param) {
             var split = param.split("=", 2);
-            var key   = split[0];
-            var value = split[1];
-            if (!key || !value)
-                return params; // be "nice" and ignore invalid properties
-            params[key.toLowerCase()] = value;
+            if (split.length != 2)
+                return callback(new Error("invalid dataurl parameter")); // FIXME: to test
+            params[split[0]] = split[1]; // FIXME: pct_decode() both key and value try/catch
             return params;
         }, {});
 
-        if (mime.toLowerCase().match(/^text\//) && !parameters['charset'])
-            parameters['charset'] = 'US-ASCII';
+        if (mime.length === 0 && Object.keys(parameters).length === 0) {
+            // If <mediatype> is omitted, it defaults to
+            // text/plain;charset=US-ASCII.
+            mime = 'text/plain';
+            parameters["charset"] = "US-ASCII";
+        } else if (mime.length === 0 && "charset" in parameters) {
+            // As a shorthand, "text/plain" can be omitted but the charset
+            // parameter supplied.
+            mime = 'text/plain';
+        }
 
         try {
             return callback(null, {
@@ -130,17 +128,13 @@ module.exports = {
 
         var mime = obj.mime || "";
         var parameters = obj.parameters || {};
-        var charset = parameters.charset || "US-ASCII";
         var parametersString = Object.keys(parameters).reduce(function (params, key) {
-            return params + ";" + key + "=" + parameters[key];
+            return params + ";" + key + "=" + parameters[key]; //FIXME: pct_encode() key and value
         }, "");
         var mediatype = mime + parametersString;
 
-        if (!iconv.encodingExists(charset))
-            return callback(new Error("unsupported charset (" + charset + ")"));
-
         if (!Buffer.isBuffer(obj.data))
-            return callback(new Error("unexpected type for obj.data (did you provide a Buffer?)"));
+            return callback(new TypeError("unexpected type for obj.data (did you provide a Buffer?)"));
 
         var data = "";
         if (true === options.base64) {
@@ -148,7 +142,7 @@ module.exports = {
             data = obj.data.toString("base64");
         } else {
             try {
-                data = pct_encode(iconv.decode(obj.data, charset), charset);
+                data = pct_encode(new Uint8Array(obj.data));
             } catch (err) {
                 return callback(err);
             }

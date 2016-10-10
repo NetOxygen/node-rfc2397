@@ -6,7 +6,6 @@
 
 var chai   = require("chai");
 var expect = chai.expect;
-var iconv  = require('iconv-lite');
 
 var rfc2397 = require('../');
 
@@ -15,7 +14,8 @@ describe("node-rfc2397", function () {
         context("when given RFC 2397 examples", function () {
             it("should parse the 'brief note' example successfully", function (done) {
                 rfc2397.parse("data:,A%20brief%20note", function (err, obj) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(obj).to.deep.equal({
                         mime: "text/plain",
                         parameters: {
@@ -32,7 +32,8 @@ describe("node-rfc2397", function () {
                 // obviously not a hex digit
                 // see https://www.rfc-editor.org/errata_search.php?eid=2009
                 rfc2397.parse("data:text/plain;charset=iso-8859-7,%be%d3%be", function (err, obj) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(obj).to.deep.equal({
                         mime: "text/plain",
                         parameters: {
@@ -53,7 +54,8 @@ describe("node-rfc2397", function () {
                     "Fo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7";
                 var larry = "data:image/gif;base64," + data;
                 rfc2397.parse(larry, function (err, obj) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(obj).to.deep.equal({
                         mime: 'image/gif',
                         parameters: {},
@@ -68,7 +70,8 @@ describe("node-rfc2397", function () {
                 var data = "select_vcount%2cfcol_from_fieldtable%2flocal";
                 var vnd = "data:application/vnd-xxx-query," + data;
                 rfc2397.parse(vnd, function (err, obj) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(obj).to.deep.equal({
                         mime: 'application/vnd-xxx-query',
                         parameters: {},
@@ -81,7 +84,8 @@ describe("node-rfc2397", function () {
         context("when given a dataurl with several parameters", function () {
             it("should parse it successfully", function (done) {
                 rfc2397.parse("data:text/plain;charset=cp866;foo=bar;answer=42,%e1%AB%ae%A2%ae", function (err, obj) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(obj).to.deep.equal({
                         mime: "text/plain",
                         parameters: {
@@ -98,10 +102,27 @@ describe("node-rfc2397", function () {
         context("when given a dataurl with base64 encoded text with mime specified", function () {
             it("should parse it successfully", function (done) {
                 rfc2397.parse("data:text/plain;base64,SGVsbG8gV29ybGQ=", function (err, obj) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(obj).to.deep.equal({
                         mime: "text/plain",
-                        parameters: { },
+                        parameters: {},
+                        data: new Buffer("Hello World"),
+                    });
+                    return done();
+                });
+            });
+        });
+        context("when given a dataurl with charset but no type/subtype", function () {
+            it("should parse it successfully", function (done) {
+                rfc2397.parse("data:;charset=utf-8;base64,SGVsbG8gV29ybGQ=", function (err, obj) {
+                    if (err)
+                        return done(err);
+                    expect(obj).to.deep.equal({
+                        mime: "text/plain",
+                        parameters: {
+                            charset: "utf-8",
+                        },
                         data: new Buffer("Hello World"),
                     });
                     return done();
@@ -113,7 +134,8 @@ describe("node-rfc2397", function () {
                 var data = "QXMtdHUgZOlq4CBmYWl0IGNlcyBy6nZlcyBO6W8sIHF1aSBz" +
                     "ZW1ibGVudCBwbHVzIHZyYWlzIHF1ZSBsYSBy6WFsaXTpID8K";
                 rfc2397.parse("data:text/plain;charset=ISO-8859-1;base64," + data, function (err, obj) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(obj).to.deep.equal({
                         mime: "text/plain",
                         parameters: {
@@ -128,7 +150,8 @@ describe("node-rfc2397", function () {
         context("when given a minimal dataurl with base64 encoded text", function () {
             it("should parse it successfully", function (done) {
                 rfc2397.parse("data:;base64,QSBicmllZiBub3Rl", function (err, obj) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(obj).to.deep.equal({
                         mime: "text/plain",
                         parameters: {
@@ -144,7 +167,8 @@ describe("node-rfc2397", function () {
             it("should parse it successfully", function (done) {
                 var data = "R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
                 rfc2397.parse("data:image/gif;base64," + data, function (err, obj) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(obj).to.deep.equal({
                         mime: "image/gif",
                         parameters: {},
@@ -180,7 +204,8 @@ describe("node-rfc2397", function () {
                     data: new Buffer("A brief note", "ascii")
                 };
                 rfc2397.compose(obj, function (err, dataurl) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(dataurl).to.equal("data:,A%20brief%20note");
                     return done();
                 });
@@ -194,7 +219,8 @@ describe("node-rfc2397", function () {
                     data: new Buffer("bed3be", "hex"),
                 };
                 rfc2397.compose(obj, function (err, dataurl) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(dataurl).to.equal("data:text/plain;charset=iso-8859-7,%be%d3%be");
                     return done();
                 });
@@ -214,7 +240,8 @@ describe("node-rfc2397", function () {
                     data: new Buffer(data, "base64"),
                 };
                 rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(dataurl).to.equal(larry);
                     return done();
                 });
@@ -228,7 +255,8 @@ describe("node-rfc2397", function () {
                     data: new Buffer("select_vcount,fcol_from_fieldtable/local", "ascii"),
                 };
                 rfc2397.compose(obj, function (err, dataurl) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(dataurl).to.equal(vnd);
                     return done();
                 });
@@ -246,7 +274,8 @@ describe("node-rfc2397", function () {
                     data: new Buffer([0xe1, 0xab, 0xae, 0xa2, 0xae]),
                 };
                 rfc2397.compose(obj, function (err, dataurl) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(dataurl).to.equal("data:text/plain;charset=cp866;foo=bar;answer=42,%e1%ab%ae%a2%ae");
                     return done();
                 });
@@ -258,7 +287,8 @@ describe("node-rfc2397", function () {
                     data: new Buffer("A brief note"),
                 };
                 rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(dataurl).to.equal("data:;base64,QSBicmllZiBub3Rl");
                     return done();
                 });
@@ -271,7 +301,8 @@ describe("node-rfc2397", function () {
                     data: new Buffer("Hello World"),
                 };
                 rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(dataurl).to.equal("data:text/plain;base64,SGVsbG8gV29ybGQ=");
                     return done();
                 });
@@ -289,7 +320,8 @@ describe("node-rfc2397", function () {
                     data: new Buffer(data, "base64"),
                 };
                 rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(dataurl).to.equal("data:text/plain;charset=ISO-8859-1;base64," + data);
                     return done();
                 });
@@ -303,24 +335,9 @@ describe("node-rfc2397", function () {
                     data: new Buffer(data, "base64"),
                 };
                 rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
-                    expect(err).to.not.exist;
+                    if (err)
+                        return done(err);
                     expect(dataurl).to.equal("data:image/gif;base64," + data);
-                    return done();
-                });
-            });
-        });
-        context("when the given charset encoding does not exist", function () {
-            it("should callback an 'unsupported charset' error", function (done) {
-                var obj = {
-                    mime: "text/plain",
-                    parameters: {
-                        charset: "klingon",
-                    },
-                    data: new Buffer("Heghlu'meH QaQ jajvam!"),
-                };
-                rfc2397.compose(obj, function (err, dataurl) {
-                    expect(err).to.be.an.instanceof(Error);
-                    expect(err.message).to.equal("unsupported charset (klingon)");
                     return done();
                 });
             });
@@ -331,7 +348,7 @@ describe("node-rfc2397", function () {
                     data: new Date(),
                 };
                 rfc2397.compose(obj, function (err, dataurl) {
-                    expect(err).to.be.an.instanceof(Error);
+                    expect(err).to.be.an.instanceof(TypeError);
                     expect(err.message).to.equal("unexpected type for obj.data (did you provide a Buffer?)");
                     return done();
                 });
