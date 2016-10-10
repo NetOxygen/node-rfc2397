@@ -28,10 +28,10 @@ object of the following form:
 Example:
 
 ```javascript
-var rfc2397 = require("node-rfc2397");
+var moddataurl = require("node-rfc2397");
 
 var dataurl = "data:text/plain;charset=cp866;foo=bar;answer=42,%e1%ab%ae%a2%ae";
-rfc2397.parse(dataurl, function (err, obj) {
+moddataurl.parse(dataurl, function (err, obj) {
     // err is null and obj is the following object:
     // {
     //     mime: "text/plain",
@@ -56,7 +56,7 @@ success.
 Example:
 
 ```javascript
-var rfc2397 = require("node-rfc2397");
+var moddataurl = require("node-rfc2397");
 
 var obj = {
     mime:"text/plain",
@@ -66,7 +66,7 @@ var obj = {
     data: Buffer.from("Hello World!")
 };
 
-rfc2397.compose(obj, {encoding: "base64"}, function (err, dataurl) {
+moddataurl.compose(obj, {encoding: "base64"}, function (err, dataurl) {
     // err is null and dataurl is the following string:
     // "data:text/plain;charset=utf-8;base64,SGVsbG8gV29ybGQh"
 });
