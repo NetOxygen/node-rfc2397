@@ -9,9 +9,10 @@ NodeJS implementation of [RFC 2397](https://tools.ietf.org/html/rfc2397) (The
 
 ### `parse(dataurl, callback)`
 
-Parse a [RFC 2397](https://tools.ietf.org/html/rfc2397) compliant string. The
-callback function expects two arguments, the error (if any) and the resulting
-object of the following form:
+Parse a [RFC 2397](https://tools.ietf.org/html/rfc2397) compliant string.
+`callback` is a `function (err, dataurl)` that is called as `callback(err)` if
+an error arise and `callback(null, infos)` on
+success. The `infos` object yielded to the callback has the following form:
 
 ```javascript
 {
@@ -48,8 +49,8 @@ moddataurl.parse(dataurl, function (err, obj) {
 ### `compose(obj[, options], callback)`
 
 Compose a [RFC 2397](https://tools.ietf.org/html/rfc2397) compliant string from
-the given object `obj`. Pass `{encoding: "base64"}` as `options` if the data
-needs to be base64 encoded. `callback` is a `function (err, dataurl)` that is
+the given object `obj`. If `options` is `{encoding: "base64"}` then `data` will
+be encoded in base64. `callback` is a `function (err, dataurl)` that is
 called as `callback(err)` if an error arise and `callback(null, dataurl)` on
 success.
 
