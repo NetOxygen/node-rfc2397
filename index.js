@@ -56,7 +56,6 @@ function base64_decode(base64encoded) {
     if (!base64encoded.match(correctly_encoded))
         throw new Error("malformed data");
 
-    // FIXME: use Buffer.from() for NodeJS 6+
     return Buffer.from(base64encoded, 'base64');
 }
 
