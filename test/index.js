@@ -461,7 +461,7 @@ describe("node-rfc2397", function () {
                     };
                     rfc2397.compose(obj, function (err, dataurl) {
                         expect(err).to.be.an.instanceof(TypeError);
-                        expect(err.message).to.equal("expected obj to be a Buffer");
+                        expect(err.message).to.equal("expected obj.data to be a Buffer");
                         return done();
                     });
                 });

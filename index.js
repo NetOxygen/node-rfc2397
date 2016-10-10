@@ -143,7 +143,7 @@ module.exports = {
         }
 
         if (!Buffer.isBuffer(obj.data))
-            return callback(new TypeError("expected obj to be a Buffer"));
+            return callback(new TypeError("expected obj.data to be a Buffer"));
 
         var mediatype = [];
         mediatype.push(obj.mime || "");
