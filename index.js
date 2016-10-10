@@ -151,11 +151,7 @@ module.exports = {
             mediatype += ";base64";
             data = obj.data.toString("base64");
         } else {
-            try {
-                data = pct_encode(obj.data);
-            } catch (err) {
-                return callback(err);
-            }
+            data = pct_encode(obj.data);
         }
 
         return callback(null, "data:" + mediatype + "," + data);
