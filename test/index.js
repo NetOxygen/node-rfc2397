@@ -312,7 +312,7 @@ describe("node-rfc2397", function () {
                     parameters: {},
                     data: Buffer.from(data, "base64"),
                 };
-                rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
+                rfc2397.compose(obj, {encoding: "base64"}, function (err, dataurl) {
                     if (err)
                         return done(err);
                     expect(dataurl).to.equal(larry);
@@ -429,7 +429,7 @@ describe("node-rfc2397", function () {
                     var obj = {
                         data: Buffer.from("A brief note"),
                     };
-                    rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
+                    rfc2397.compose(obj, {encoding: "base64"}, function (err, dataurl) {
                         if (err)
                             return done(err);
                         expect(dataurl).to.equal("data:;base64,QSBicmllZiBub3Rl");
@@ -444,7 +444,7 @@ describe("node-rfc2397", function () {
                         mime: "image/gif",
                         data: Buffer.from(data, "base64"),
                     };
-                    rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
+                    rfc2397.compose(obj, {encoding: "base64"}, function (err, dataurl) {
                         if (err)
                             return done(err);
                         expect(dataurl).to.equal("data:image/gif;base64," + data);

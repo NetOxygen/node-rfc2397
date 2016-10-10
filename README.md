@@ -2,15 +2,16 @@
 
 # node-rfc2397
 
-NodeJS implementation of RFC 2397 (also know as the "data url scheme" or "data
-uri"), both parsing and composing.
+NodeJS implementation of [RFC 2397](https://tools.ietf.org/html/rfc2397) (also
+know as the "data url scheme" or "data uri"), both parsing and composing.
 
 ## Usage
 
 ### `parse(dataurl, callback)`
 
-Parse a RFC 2397 compliant string. The callback function expects two arguments,
-the error (if any) and the resulting object of the following form:
+Parse a [RFC 2397](https://tools.ietf.org/html/rfc2397) compliant string. The
+callback function expects two arguments, the error (if any) and the resulting
+object of the following form:
 
 ```javascript
 {
@@ -31,7 +32,7 @@ var rfc2397 = require("node-rfc2397");
 
 var dataurl = "data:text/plain;charset=cp866;foo=bar;answer=42,%e1%ab%ae%a2%ae";
 rfc2397.parse(dataurl, function (err, obj) {
-    // obj is the following object:
+    // err is null and obj is the following object:
     // {
     //     mime: "text/plain",
     //     parameters: {
@@ -44,28 +45,29 @@ rfc2397.parse(dataurl, function (err, obj) {
 });
 ```
 
-### `compose(obj, options, callback)` or `compose(obj, callback)`
+### `compose(obj[, options], callback)`
 
-Compose a RFC 2397 compliant string from the given object `obj`. Pass
-`{ base64: true }` as `options`if the data needs to be base64 encoded.
-The callback function expects two arguments, the error (if any) and the
-resulting string.
+Compose a [RFC 2397](https://tools.ietf.org/html/rfc2397) compliant string from
+the given object `obj`. Pass `{encoding: "base64"}` as `options` if the data
+needs to be base64 encoded. `callback` is a `function (err, dataurl)` that is
+call as `callback(err)` if an error arise and `callback(null, dataurl)` on
+success.
 
-Example: 
+Example:
 
 ```javascript
 var rfc2397 = require("node-rfc2397");
 
 var obj = {
-    mime: 'text/plain',
+    mime:"text/plain",
     parameters: {
-        charset: "US-ASCII",
+        charset:"utf-8"
     },
-    data: Buffer.from("Hello World!"),
+    data: Buffer.from("Hello World!")
 };
 
-rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
-    // dataurl is the following string:
-    // "data:text/plain;charset=US-ASCII,SGVsbG8gV29ybGQK"
+rfc2397.compose(obj, {encoding: "base64"}, function (err, dataurl) {
+    // err is null and dataurl is the following string:
+    // "data:text/plain;charset=utf-8;base64,SGVsbG8gV29ybGQh"
 });
 ```

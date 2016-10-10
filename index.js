@@ -155,7 +155,7 @@ module.exports = {
 
         var base64 = "";
         var encode = pct_encode;
-        if (true === options.base64) {
+        if (options.encoding === 'base64') {
             base64 = ";base64";
             encode = base64_encode;
         }
