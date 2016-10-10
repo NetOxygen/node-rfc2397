@@ -4,7 +4,8 @@
   "description": "NodeJS implementation of RFC 2397, both parsing and composing",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/istanbul test ./node_modules/.bin/_mocha"
+    "test": "./node_modules/.bin/istanbul test ./node_modules/.bin/_mocha",
+    "cover": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha"
   },
   "engines": {
     "node": ">= 4.5.0"
