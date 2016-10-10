@@ -17,11 +17,9 @@ function pct_decode(urlencoded) {
 
     var buffers = urlencoded.split(splitter).map(function (part) {
         if (part.match(re.escaped)) {
-            // FIXME: use Buffer.from() for NodeJS 6+
-            return new Buffer(/* remove leading `%' */part.slice(1), "hex");
+            return Buffer.from(/* remove leading `%' */part.slice(1), "hex");
         } else {
-            // FIXME: use Buffer.from() for NodeJS 6+
-            return new Buffer(part, "ascii");
+            return Buffer.from(part, "ascii");
         }
     });
 
@@ -33,9 +31,7 @@ function pct_decode(urlencoded) {
  * Encode argument into a percent encoded string.
  */
 function pct_encode(arg) {
-    // FIXME: use Buffer.from() for NodeJS 6+
-    // FIXME: use Uint8Array.from() for NodeJS 6+
-    var encoded = new Uint8Array(new Buffer(arg)).reduce(function (str, byte) {
+    var encoded = Uint8Array.from(Buffer.from(arg)).reduce(function (str, byte) {
         var char = String.fromCharCode(byte);
         if (char.match(re.unreserved)) {
             return str + char;
@@ -61,7 +57,7 @@ function base64_decode(base64encoded) {
         throw new Error("malformed data");
 
     // FIXME: use Buffer.from() for NodeJS 6+
-    return new Buffer(base64encoded, 'base64');
+    return Buffer.from(base64encoded, 'base64');
 }
 
 

@@ -22,7 +22,7 @@ describe("node-rfc2397", function () {
                     expect(obj).to.deep.equal({
                         mime: "text/plain",
                         parameters: {},
-                        data: new Buffer([])
+                        data: Buffer.from([])
                     });
                     return done();
                 });
@@ -38,7 +38,7 @@ describe("node-rfc2397", function () {
                         parameters: {
                             charset: "US-ASCII",
                         },
-                        data: new Buffer("A brief note", "ascii")
+                        data: Buffer.from("A brief note", "ascii")
                     });
                     return done();
                 });
@@ -56,7 +56,7 @@ describe("node-rfc2397", function () {
                         parameters: {
                             charset: "iso-8859-7",
                         },
-                        data: new Buffer("bed3be", "hex"),
+                        data: Buffer.from("bed3be", "hex"),
                     });
                     return done();
                 });
@@ -76,7 +76,7 @@ describe("node-rfc2397", function () {
                     expect(obj).to.deep.equal({
                         mime: 'image/gif',
                         parameters: {},
-                        data: new Buffer(data, "base64"),
+                        data: Buffer.from(data, "base64"),
                     });
                     return done();
                 });
@@ -92,7 +92,7 @@ describe("node-rfc2397", function () {
                     expect(obj).to.deep.equal({
                         mime: 'application/vnd-xxx-query',
                         parameters: {},
-                        data: new Buffer("select_vcount,fcol_from_fieldtable/local", "ascii"),
+                        data: Buffer.from("select_vcount,fcol_from_fieldtable/local", "ascii"),
                     });
                     return done();
                 });
@@ -109,7 +109,7 @@ describe("node-rfc2397", function () {
                             parameters: {
                                 charset: "US-ASCII",
                             },
-                            data: new Buffer([])
+                            data: Buffer.from([])
                         });
                         return done();
                     });
@@ -125,7 +125,7 @@ describe("node-rfc2397", function () {
                             parameters: {
                                 charset: "utf-8",
                             },
-                            data: new Buffer([])
+                            data: Buffer.from([])
                         });
                         return done();
                     });
@@ -141,7 +141,7 @@ describe("node-rfc2397", function () {
                             parameters: {
                                 charset: "ISO-8859-1",
                             },
-                            data: new Buffer([])
+                            data: Buffer.from([])
                         });
                         return done();
                     });
@@ -161,7 +161,7 @@ describe("node-rfc2397", function () {
                                 foo: "bar",
                                 answer: "42",
                             },
-                            data: new Buffer([])
+                            data: Buffer.from([])
                         });
                         return done();
                     });
@@ -177,7 +177,7 @@ describe("node-rfc2397", function () {
                             parameters: {
                                 "A brief note": "hello"
                             },
-                            data: new Buffer([])
+                            data: Buffer.from([])
                         });
                         return done();
                     });
@@ -193,7 +193,7 @@ describe("node-rfc2397", function () {
                             parameters: {
                                 hello: "A brief note",
                             },
-                            data: new Buffer([])
+                            data: Buffer.from([])
                         });
                         return done();
                     });
@@ -209,7 +209,7 @@ describe("node-rfc2397", function () {
                         expect(obj).to.deep.equal({
                             mime: "text/plain",
                             parameters: {},
-                            data: new Buffer("Hello World"),
+                            data: Buffer.from("Hello World"),
                         });
                         return done();
                     });
@@ -224,7 +224,7 @@ describe("node-rfc2397", function () {
                         expect(obj).to.deep.equal({
                             mime: "image/gif",
                             parameters: {},
-                            data: new Buffer(data, "base64"),
+                            data: Buffer.from(data, "base64"),
                         });
                         return done();
                     });
@@ -274,7 +274,7 @@ describe("node-rfc2397", function () {
         context("when given RFC 2397 examples", function () {
             it("should compose the 'brief note' example successfully", function (done) {
                 var obj = {
-                    data: new Buffer("A brief note", "ascii")
+                    data: Buffer.from("A brief note", "ascii")
                 };
                 rfc2397.compose(obj, function (err, dataurl) {
                     if (err)
@@ -289,7 +289,7 @@ describe("node-rfc2397", function () {
                     parameters: {
                         charset: "iso-8859-7",
                     },
-                    data: new Buffer("bed3be", "hex"),
+                    data: Buffer.from("bed3be", "hex"),
                 };
                 rfc2397.compose(obj, function (err, dataurl) {
                     if (err)
@@ -310,7 +310,7 @@ describe("node-rfc2397", function () {
                 var obj = {
                     mime: 'image/gif',
                     parameters: {},
-                    data: new Buffer(data, "base64"),
+                    data: Buffer.from(data, "base64"),
                 };
                 rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
                     if (err)
@@ -325,7 +325,7 @@ describe("node-rfc2397", function () {
                 var obj = {
                     mime: 'application/vnd-xxx-query',
                     parameters: {},
-                    data: new Buffer("select_vcount,fcol_from_fieldtable/local", "ascii"),
+                    data: Buffer.from("select_vcount,fcol_from_fieldtable/local", "ascii"),
                 };
                 rfc2397.compose(obj, function (err, dataurl) {
                     if (err)
@@ -340,7 +340,7 @@ describe("node-rfc2397", function () {
                 it("should compose it successfully", function (done) {
                     var obj = {
                         mime: "text/plain",
-                        data: new Buffer([])
+                        data: Buffer.from([])
                     };
                     rfc2397.compose(obj, function (err, dataurl) {
                         if (err)
@@ -357,7 +357,7 @@ describe("node-rfc2397", function () {
                         parameters: {
                             charset: "ISO-8859-1",
                         },
-                        data: new Buffer([])
+                        data: Buffer.from([])
                     };
                     rfc2397.compose(obj, function (err, dataurl) {
                         if (err)
@@ -378,7 +378,7 @@ describe("node-rfc2397", function () {
                             foo: "bar",
                             answer: "42",
                         },
-                        data: new Buffer([0xe1, 0xab, 0xae, 0xa2, 0xae]),
+                        data: Buffer.from([0xe1, 0xab, 0xae, 0xa2, 0xae]),
                     };
                     rfc2397.compose(obj, function (err, dataurl) {
                         if (err)
@@ -396,7 +396,7 @@ describe("node-rfc2397", function () {
                         parameters: {
                             "A brief note": "hello",
                         },
-                        data: new Buffer([])
+                        data: Buffer.from([])
                     };
                     rfc2397.compose(obj, function (err, dataurl) {
                         if (err)
@@ -412,7 +412,7 @@ describe("node-rfc2397", function () {
                         parameters: {
                             hello: "A brief note",
                         },
-                        data: new Buffer([])
+                        data: Buffer.from([])
                     };
                     rfc2397.compose(obj, function (err, dataurl) {
                         if (err)
@@ -427,7 +427,7 @@ describe("node-rfc2397", function () {
             context("when given an object with text to encode to base64", function () {
                 it("should compose it successfully", function (done) {
                     var obj = {
-                        data: new Buffer("A brief note"),
+                        data: Buffer.from("A brief note"),
                     };
                     rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
                         if (err)
@@ -442,7 +442,7 @@ describe("node-rfc2397", function () {
                     var data = "R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
                     var obj = {
                         mime: "image/gif",
-                        data: new Buffer(data, "base64"),
+                        data: Buffer.from(data, "base64"),
                     };
                     rfc2397.compose(obj, { base64: true }, function (err, dataurl) {
                         if (err)
