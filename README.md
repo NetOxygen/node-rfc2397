@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/NetOxygen/node-rfc2397.svg?branch=master)](https://travis-ci.org/NetOxygen/node-rfc2397)
+[![Build Status](https://travis-ci.org/NetOxygen/node-rfc2397.svg?branch=master)](https://travis-ci.org/NetOxygen/node-rfc2397)[![Coverage Status](https://coveralls.io/repos/github/NetOxygen/node-rfc2397/badge.svg?branch=master)](https://coveralls.io/github/NetOxygen/node-rfc2397?branch=master)
 
 # node-rfc2397
 
