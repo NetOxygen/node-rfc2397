@@ -1,6 +1,7 @@
 [![NPM Version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
+[![Dependencies][librariesio-image][librariesio-url]
 
 # node-rfc2397
 
@@ -100,3 +101,5 @@ $ npm test --coverage
 [travis-url]: https://travis-ci.org/NetOxygen/node-rfc2397
 [coveralls-image]: https://coveralls.io/repos/github/NetOxygen/node-rfc2397/badge.svg?branch=master
 [coveralls-url]: https://coveralls.io/github/NetOxygen/node-rfc2397?branch=master
+[librariesio-image]: https://img.shields.io/librariesio/github/NetOxygen/node-rfc2397.svg
+[librariesio-url]: https://libraries.io/npm/node-rfc2397
