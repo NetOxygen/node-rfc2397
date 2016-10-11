@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/NetOxygen/node-rfc2397.svg?branch=master)](https://travis-ci.org/NetOxygen/node-rfc2397)[![Coverage Status](https://coveralls.io/repos/github/NetOxygen/node-rfc2397/badge.svg?branch=master)](https://coveralls.io/github/NetOxygen/node-rfc2397?branch=master)
+[![Build Status][travis-image]][travis-url]
+[![Test Coverage][coveralls-image]][coveralls-url]
 
 # node-rfc2397
 
@@ -91,3 +92,8 @@ $ npm test --coverage
 ## License
 
 [MIT](LICENSE)
+
+[travis-image]: https://travis-ci.org/NetOxygen/node-rfc2397.svg?branch=master
+[travis-url]: https://travis-ci.org/NetOxygen/node-rfc2397
+[coveralls-image]: https://coveralls.io/repos/github/NetOxygen/node-rfc2397/badge.svg?branch=master
+[coveralls-url]: https://coveralls.io/github/NetOxygen/node-rfc2397?branch=master
