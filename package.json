@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/istanbul test ./node_modules/.bin/_mocha",
-    "test-ci": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly",
-    "cover": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha"
+    "test-ci": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly"
   },
   "engines": {
     "node": ">= 4.5.0"
