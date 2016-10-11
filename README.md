@@ -87,3 +87,7 @@ For a test coverage report, run `npm test --coverage`:
 ```sh
 $ npm test --coverage
 ```
+
+## License
+
+[MIT](LICENSE)
