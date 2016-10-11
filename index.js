@@ -146,18 +146,18 @@ module.exports = {
     },
 
 
-    compose: function (infos, options, callback) {
+    compose: function (info, options, callback) {
         if ('undefined' === typeof callback) {
             callback = options;
             options = {};
         }
 
-        if (!Buffer.isBuffer(infos.data))
-            return callback(new TypeError("expected infos.data to be a Buffer"));
+        if (!Buffer.isBuffer(info.data))
+            return callback(new TypeError("expected info.data to be a Buffer"));
 
         var mediatype = [];
-        mediatype.push(infos.mime || "");
-        var parameters = infos.parameters || {};
+        mediatype.push(info.mime || "");
+        var parameters = info.parameters || {};
         Object.keys(parameters).forEach(function (key) {
             /*
              * pct_encode() both attribute and value, see § 3:
@@ -177,7 +177,7 @@ module.exports = {
             base64 = ";base64";
             encode = base64_encode;
         }
-        var data = encode(infos.data);
+        var data = encode(info.data);
 
         return callback(null, "data:" + mediatype.join(";") + base64 + "," + data);
     },
