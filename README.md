@@ -1,7 +1,7 @@
 [![NPM Version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
-[![Dependencies][librariesio-image][librariesio-url]
+[![Dependencies][librariesio-image]][librariesio-url]
 
 # node-rfc2397
 
