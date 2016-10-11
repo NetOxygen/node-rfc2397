@@ -72,3 +72,18 @@ moddataurl.compose(infos, {encoding: "base64"}, function (err, dataurl) {
     // "data:text/plain;charset=utf-8;base64,SGVsbG8gV29ybGQh"
 });
 ```
+
+## Tests
+
+To run the test suite, first install the dependencies, then run `npm test`:
+
+```sh
+$ npm install
+$ npm test
+```
+
+For a test coverage report, run `npm test --coverage`:
+
+```sh
+$ npm test --coverage
+```
