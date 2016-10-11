@@ -31,15 +31,14 @@ function pct_decode(urlencoded) {
  * Encode argument into a percent encoded string.
  */
 function pct_encode(arg) {
-    var encoded = Uint8Array.from(Buffer.from(arg)).reduce(function (str, byte) {
+    // convert arg to an array of bytes and escape every one of them that is
+    // "unsafe" (i.e. unreserved).
+    var bytes   = Uint8Array.from(Buffer.from(arg));
+    var encoded = bytes.reduce(function (str, byte) {
         var char = String.fromCharCode(byte);
-        if (char.match(re.unreserved)) {
-            return str + char;
-        } else {
-            return str + "%" + byte.toString(16);
-        }
+        var esc  = char.match(re.unreserved) ? char : "%" + byte.toString(16);
+        return str + esc;
     }, "");
-
     return encoded;
 }
 
@@ -48,7 +47,11 @@ function pct_encode(arg) {
  * validate and decode a base64 encoded string into a buffer.
  */
 function base64_decode(base64encoded) {
-    // see https://stackoverflow.com/questions/475074/regex-to-parse-or-validate-base64-data/475217#475217
+    // we validate "by hand" the base64encoded data, because Buffer.from will
+    // "successfully" parse non-base64 data.
+    //
+    // regexp taken from
+    // https://stackoverflow.com/questions/475074/regex-to-parse-or-validate-base64-data/475217#475217
     var correctly_encoded = new RegExp(
         "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
     );
@@ -63,7 +66,8 @@ function base64_decode(base64encoded) {
 /*
  * Encode argument into a base64 encoded string.
  */
-function base64_encode(buff) {
+function base64_encode(arg) {
+    var buff = Buffer.from(arg);
     return buff.toString("base64");
 }
 
@@ -101,9 +105,16 @@ module.exports = {
                 var splitted = parameter.split("=");
                 if (splitted.length !== 2)
                     throw new Error("invalid dataurl parameter");
-                var key   = pct_decode(splitted[0]).toString();
-                var value = pct_decode(splitted[1]).toString();
-                parameters[key] = value;
+                /*
+                 * pct_encode() both attribute and value, see § 3:
+                 *
+                 * "attribute" and "value" are the corresponding tokens from
+                 * [RFC2045], represented using URL escaped encoding of
+                 * [RFC2396] as necessary.
+                */
+                var attribute = pct_decode(splitted[0]).toString();
+                var value     = pct_decode(splitted[1]).toString();
+                parameters[attribute] = value;
                 return parameters;
             }, {});
         } catch (err) {
@@ -148,6 +159,13 @@ module.exports = {
         mediatype.push(infos.mime || "");
         var parameters = infos.parameters || {};
         Object.keys(parameters).forEach(function (key) {
+            /*
+             * pct_encode() both attribute and value, see § 3:
+             *
+             * "attribute" and "value" are the corresponding tokens from
+             * [RFC2045], represented using URL escaped encoding of
+             * [RFC2396] as necessary.
+             */
             var attribute = pct_encode(key);
             var value     = pct_encode(parameters[key]);
             mediatype.push(attribute + "=" + value);
