@@ -467,5 +467,18 @@ describe("node-rfc2397", function () {
                 });
             });
         });
+        context("when data is 0x0", function () {
+            it("should compose it successfully as %00 in URL encoding", function (done) {
+                var info = {
+                    data: Buffer.from([0x00]),
+                };
+                moddataurl.compose(info, function (err, dataurl) {
+                    if (err)
+                        return done(err);
+                    expect(dataurl).to.eql('data:,%00');
+                    return done();
+                });
+            });
+        });
     });
 });

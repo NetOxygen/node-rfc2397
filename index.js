@@ -36,8 +36,15 @@ function pct_encode(arg) {
     var bytes   = Uint8Array.from(Buffer.from(arg));
     var encoded = bytes.reduce(function (str, byte) {
         var char = String.fromCharCode(byte);
-        var esc  = char.match(re.unreserved) ? char : "%" + byte.toString(16);
-        return str + esc;
+        if (char.match(re.unreserved))
+            return str + char;
+        else {
+            // this byte need to be "%xx hex" encoded
+            var hex = byte.toString(16);
+            if (hex.length == 1) // e.g. 0x1 would be 1 but we need 01
+                hex = "0" + hex;
+            return str + "%" + hex;
+        }
     }, "");
     return encoded;
 }
