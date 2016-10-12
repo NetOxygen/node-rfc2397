@@ -1,6 +1,6 @@
 {
   "name": "node-rfc2397",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "NodeJS implementation of RFC 2397, both parsing and composing",
   "main": "index.js",
   "scripts": {
