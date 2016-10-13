@@ -89,13 +89,13 @@ module.exports = {
      *   parameter  := attribute "=" value*
      *
      */
-    parse: function (dataurl, callback) {
+    parseSync: function (dataurl) {
         // capture groups:
         //   (1) [ mediatype ] [ ";base64" ]
         //   (2) data
         var groups = dataurl.match(/^data:(.*?),(.*)$/);
         if (!groups)
-            return callback(new Error("malformed dataurl"));
+            throw new Error("malformed dataurl");
 
         // index 0 is the full match
         var mediatype = groups[1].split(";"); // capture group (1)
@@ -110,26 +110,22 @@ module.exports = {
         // mime (i.e. type/subtype) is the first element.
         info.mime = mediatype.shift();
         // parameters follow
-        try {
-            info.parameters = mediatype.reduce(function (parameters, parameter) {
-                var splitted = parameter.split("=");
-                if (splitted.length !== 2)
-                    throw new Error("invalid dataurl parameter");
-                /*
-                 * pct_encode() both attribute and value, see § 3:
-                 *
-                 * "attribute" and "value" are the corresponding tokens from
-                 * [RFC2045], represented using URL escaped encoding of
-                 * [RFC2396] as necessary.
-                */
-                var attribute = pct_decode(splitted[0]).toString();
-                var value     = pct_decode(splitted[1]).toString();
-                parameters[attribute] = value;
-                return parameters;
-            }, {});
-        } catch (err) {
-            return callback(err);
-        }
+        info.parameters = mediatype.reduce(function (parameters, parameter) {
+            var splitted = parameter.split("=");
+            if (splitted.length !== 2)
+                throw new Error("invalid dataurl parameter");
+            /*
+             * pct_encode() both attribute and value, see § 3:
+             *
+             * "attribute" and "value" are the corresponding tokens from
+             * [RFC2045], represented using URL escaped encoding of
+             * [RFC2396] as necessary.
+            */
+            var attribute = pct_decode(splitted[0]).toString();
+            var value     = pct_decode(splitted[1]).toString();
+            parameters[attribute] = value;
+            return parameters;
+        }, {});
 
         var mime_omitted = (info.mime.length === 0);
         if (mime_omitted && Object.keys(info.parameters).length === 0) {
@@ -143,19 +139,22 @@ module.exports = {
             info.mime = 'text/plain';
         }
 
-        try {
-            info.data = (info.base64 ? base64_decode : pct_decode)(data);
-        } catch (err) {
-            return callback(err);
-        }
+        info.data = (info.base64 ? base64_decode : pct_decode)(data);
 
-        return callback(null, info);
+        return info;
     },
 
+    parse: function (dataurl, callback) {
+        try {
+            return callback(null, this.parseSync(dataurl));
+        } catch (err) {
+            return callback(err);
+        };
+    },
 
-    compose: function (info, callback) {
+    composeSync: function (info) {
         if (!Buffer.isBuffer(info.data))
-            return callback(new TypeError("expected info.data to be a Buffer"));
+            throw new TypeError("expected info.data to be a Buffer");
 
         var mediatype = [];
         mediatype.push(info.mime || "");
@@ -181,6 +180,14 @@ module.exports = {
         }
         var data = encode(info.data);
 
-        return callback(null, "data:" + mediatype.join(";") + base64 + "," + data);
+        return "data:" + mediatype.join(";") + base64 + "," + data;
+    },
+
+    compose: function (info, callback) {
+        try {
+            return callback(null, this.composeSync(info));
+        } catch (err) {
+            return callback(err);
+        }
     },
 };

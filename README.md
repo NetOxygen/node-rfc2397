@@ -64,6 +64,35 @@ moddataurl.parse(dataurl, function (err, info) {
 });
 ```
 
+### `parseSync(dataurl)`
+
+Synchronous version of `parse()`. This throws if an error occurs. `dataurl` is a
+[RFC 2397][rfc2397-url] compliant string. Returns an `info` object, as described
+in the documentation of `parse()`.
+
+Example:
+
+```javascript
+var moddataurl = require("node-rfc2397");
+
+try {
+    var dataurl = "data:text/plain;charset=utf-8,Hello%20World%21";
+    var info = moddataurl.parseSync(dataurl)
+    console.log(info);
+    // {
+    //     mime: 'text/plain',
+    //     parameters: {
+    //         charset: 'utf-8',
+    //     },
+    //     data: <Buffer 48 65 6c 6c 6f 20 57 6f 72 6c 64 21>
+    // }
+
+} catch (err) {
+    console.log(err);
+    throw err;
+}
+```
+
 ### `compose(info, callback)`
 
 Compose a [RFC 2397][rfc2397-url] compliant string from the given object
@@ -88,6 +117,33 @@ moddataurl.compose(info, function (err, dataurl) {
     // err is null and dataurl is the following string:
     // "data:text/plain;charset=utf-8;base64,SGVsbG8gV29ybGQh"
 });
+```
+
+### `composeSync(info)`
+
+Synchronous version of `compose()`. This throws if an error occurs. `info` is an
+object, as described in the documentation of `compose()`. Returns an
+[RFC 2397][rfc2397-url] compliant string.
+
+Example:
+
+```javascript
+var moddataurl = require("node-rfc2397");
+
+try {
+    var info = {
+        mime: "text/plain",
+        parameters: {
+            charset: "utf-8",
+        },
+        data: Buffer.from("Hello World!"),
+    };
+    var dataurl = moddataurl.composeSync(info);
+    console.log(dataurl); // data:text/plain;charset=utf-8,Hello%20World%21
+} catch (err) {
+    console.log(err);
+    throw err;
+}
 ```
 
 ## Tests
