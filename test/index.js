@@ -76,6 +76,7 @@ describe("node-rfc2397", function () {
                     expect(info).to.deep.equal({
                         mime: 'image/gif',
                         parameters: {},
+                        base64: true,
                         data: Buffer.from(data, "base64"),
                     });
                     return done();
@@ -209,6 +210,7 @@ describe("node-rfc2397", function () {
                         expect(info).to.deep.equal({
                             mime: "text/plain",
                             parameters: {},
+                            base64: true,
                             data: Buffer.from("Hello World"),
                         });
                         return done();
@@ -224,6 +226,7 @@ describe("node-rfc2397", function () {
                         expect(info).to.deep.equal({
                             mime: "image/gif",
                             parameters: {},
+                            base64: true,
                             data: Buffer.from(data, "base64"),
                         });
                         return done();
@@ -310,9 +313,10 @@ describe("node-rfc2397", function () {
                 var info = {
                     mime: 'image/gif',
                     parameters: {},
+                    base64: true,
                     data: Buffer.from(data, "base64"),
                 };
-                moddataurl.compose(info, {encoding: "base64"}, function (err, dataurl) {
+                moddataurl.compose(info, function (err, dataurl) {
                     if (err)
                         return done(err);
                     expect(dataurl).to.equal(larry);
@@ -427,9 +431,10 @@ describe("node-rfc2397", function () {
             context("when given an object with text to encode to base64", function () {
                 it("should compose it successfully", function (done) {
                     var info = {
+                        base64: true,
                         data: Buffer.from("A brief note"),
                     };
-                    moddataurl.compose(info, {encoding: "base64"}, function (err, dataurl) {
+                    moddataurl.compose(info, function (err, dataurl) {
                         if (err)
                             return done(err);
                         expect(dataurl).to.equal("data:;base64,QSBicmllZiBub3Rl");
@@ -442,9 +447,10 @@ describe("node-rfc2397", function () {
                     var data = "R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
                     var info = {
                         mime: "image/gif",
+                        base64: true,
                         data: Buffer.from(data, "base64"),
                     };
-                    moddataurl.compose(info, {encoding: "base64"}, function (err, dataurl) {
+                    moddataurl.compose(info, function (err, dataurl) {
                         if (err)
                             return done(err);
                         expect(dataurl).to.equal("data:image/gif;base64," + data);

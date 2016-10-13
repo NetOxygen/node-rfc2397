@@ -101,14 +101,17 @@ module.exports = {
         var mediatype = groups[1].split(";"); // capture group (1)
         var data      = groups[2];            // capture group (2)
 
+        var info = {};
         // base64 is a special case and the last element (if present).
-        var base64 = mediatype[mediatype.length - 1] === "base64" && mediatype.pop();
+        if (mediatype[mediatype.length - 1] === "base64") {
+            info.base64 = true;
+            mediatype.pop(); // remove "base64" from the mediatype
+        }
         // mime (i.e. type/subtype) is the first element.
-        var mime = mediatype.shift();
+        info.mime = mediatype.shift();
         // parameters follow
-        var parameters;
         try {
-            parameters = mediatype.reduce(function (parameters, parameter) {
+            info.parameters = mediatype.reduce(function (parameters, parameter) {
                 var splitted = parameter.split("=");
                 if (splitted.length !== 2)
                     throw new Error("invalid dataurl parameter");
@@ -128,37 +131,29 @@ module.exports = {
             return callback(err);
         }
 
-        if (mime.length === 0 && Object.keys(parameters).length === 0) {
+        var mime_omitted = (info.mime.length === 0);
+        if (mime_omitted && Object.keys(info.parameters).length === 0) {
             // If <mediatype> is omitted, it defaults to
             // text/plain;charset=US-ASCII.
-            mime = 'text/plain';
-            parameters.charset = "US-ASCII";
-        } else if (mime.length === 0 && "charset" in parameters) {
+            info.mime = 'text/plain';
+            info.parameters.charset = "US-ASCII";
+        } else if (mime_omitted && "charset" in info.parameters) {
             // As a shorthand, "text/plain" can be omitted but the charset
             // parameter supplied.
-            mime = 'text/plain';
+            info.mime = 'text/plain';
         }
 
         try {
-            data = (base64 ? base64_decode : pct_decode)(data);
+            info.data = (info.base64 ? base64_decode : pct_decode)(data);
         } catch (err) {
             return callback(err);
         }
 
-        return callback(null, {
-            mime: mime,
-            parameters: parameters,
-            data: data
-        });
+        return callback(null, info);
     },
 
 
-    compose: function (info, options, callback) {
-        if ('undefined' === typeof callback) {
-            callback = options;
-            options = {};
-        }
-
+    compose: function (info, callback) {
         if (!Buffer.isBuffer(info.data))
             return callback(new TypeError("expected info.data to be a Buffer"));
 
@@ -180,7 +175,7 @@ module.exports = {
 
         var base64 = "";
         var encode = pct_encode;
-        if (options.encoding === 'base64') {
+        if (info.base64) {
             base64 = ";base64";
             encode = base64_encode;
         }

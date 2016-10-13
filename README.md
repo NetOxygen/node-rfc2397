@@ -33,6 +33,7 @@ Example:
 ```javascript
 var moddataurl = require("node-rfc2397");
 
+// URL encoded
 var dataurl = "data:text/plain;charset=cp866;foo=bar;answer=42,%e1%ab%ae%a2%ae";
 moddataurl.parse(dataurl, function (err, info) {
     // err is null and info is the following object:
@@ -46,13 +47,27 @@ moddataurl.parse(dataurl, function (err, info) {
     //     data: <Buffer e1 ab ae a2 ae>,
     // }
 });
+
+// Base64
+var dataurl = "data:text/plain;charset=utf-8;base64,SGVsbG8gV29ybGQh";
+moddataurl.parse(dataurl, function (err, info) {
+    // err is null and info is the following object:
+    // {
+    //    base64: true,
+    //    mime: "text/plain",
+    //    parameters: {
+    //        charset: "utf-8"
+    //    },
+    //    data: <Buffer 48 65 6c 6c 6f 20 57 6f 72 6c 64 21>
+    // }
+    info.data.toString(); // "Hello World!"
+});
 ```
 
-### `compose(info[, options], callback)`
+### `compose(info, callback)`
 
 Compose a [RFC 2397][rfc2397-url] compliant string from the given object
-`info`. If `options` is `{encoding: "base64"}` then `data` will be encoded in
-base64. `callback` is a `function (err, dataurl)` that is called as
+`info`. `callback` is a `function (err, dataurl)` that is called as
 `callback(err)` if an error arise and `callback(null, dataurl)` on success.
 
 Example:
@@ -65,10 +80,11 @@ var info = {
     parameters: {
         charset:"utf-8"
     },
+    base64: true,
     data: Buffer.from("Hello World!")
 };
 
-moddataurl.compose(info, {encoding: "base64"}, function (err, dataurl) {
+moddataurl.compose(info, function (err, dataurl) {
     // err is null and dataurl is the following string:
     // "data:text/plain;charset=utf-8;base64,SGVsbG8gV29ybGQh"
 });
