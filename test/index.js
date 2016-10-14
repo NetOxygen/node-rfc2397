@@ -145,6 +145,13 @@ describe("node-rfc2397", function () {
                     });
                 });
             });
+            context("when given duplicate parameter keys", function () {
+                it("should throw a duplicate parameter keys error", function () {
+                    expect(function () {
+                        moddataurl.parseSync("data:text/plain;foo=bar;foo=nope,");
+                    }).to.throw(Error, "duplicate parameter key: foo");
+                });
+            });
             context("when given an URL encoded value parameter", function () {
                 it("should parse it successfully", function () {
                     expect(moddataurl.parseSync("data:text/plain;hello=A%20brief%20note,")).to.deep.equal({
