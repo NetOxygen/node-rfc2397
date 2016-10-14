@@ -134,6 +134,17 @@ describe("node-rfc2397", function () {
                     });
                 });
             });
+            context("when given 'base64' as key parameter", function () {
+                it("should parse it successfully", function () {
+                    expect(moddataurl.parseSync("data:text/plain;base64=foo,")).to.deep.equal({
+                        mime: "text/plain",
+                        parameters: {
+                            base64: "foo",
+                        },
+                        data: Buffer.from([])
+                    });
+                });
+            });
             context("when given an URL encoded value parameter", function () {
                 it("should parse it successfully", function () {
                     expect(moddataurl.parseSync("data:text/plain;hello=A%20brief%20note,")).to.deep.equal({
