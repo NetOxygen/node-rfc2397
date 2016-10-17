@@ -123,11 +123,6 @@ module.exports = {
             */
             var attribute = pct_decode(splitted[0]).toString();
             var value     = pct_decode(splitted[1]).toString();
-
-            // Attribute values in [RFC2045] are allowed to be either
-            // represented as tokens or as quoted strings.
-            value = value.replace(/^"/, "").replace(/"$/, "");
-
             if (attribute in parameters)
                 throw new Error("duplicate parameter key: " + attribute);
             parameters[attribute] = value;
