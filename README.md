@@ -146,6 +146,33 @@ try {
 }
 ```
 
+## Implementation notes
+
+The [RFC 2397][rfc2397-url] is unfortunately vague regarding many details of the
+syntax of the data URL scheme. This node module does its best to have a solid
+implementation of the specification of the original RFC. However, some
+independent choices had to be made where the specification is unclear.
+
+### Duplicate parameter attribute handling
+
+The [RFC 2397][rfc2397-url] does not specify what needs to be done when
+duplicate parameter keys are encountered. The approach retained by this
+implementation is **first given**.
+
+Example:
+
+```javascript
+var moddataurl = require("node-rfc2397");
+var info = moddataurl.parseSync("data:text/plain;foo=bar;foo=nope,");
+console.log(info);
+// {
+//     mime: 'text/plain',
+//     parameters: { foo: 'bar' },
+//     data: <Buffer >,
+// }
+
+```
+
 ## Tests
 
 To run the test suite, first install the dependencies, then run `npm test`:
